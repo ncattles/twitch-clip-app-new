@@ -36,11 +36,39 @@ def login():
     broadcaster_id = data['data'][0]['id'] # 0 points to the first json object in the list of dicts (this only returned one, but could return multiple based on the params (such as more than one login username passed))
     
     
-    # get clips for a channel
+    # get clips for a channel using broadcaster_id
+    params = {'broadcaster_id': broadcaster_id}
     
+    clips_list = [] # list that will store all clips for channel
     
+    # initial request
+    clips_url = 'https://api.twitch.tv/helix/clips'
+    res = requests.get(clips_url, params=params, headers=headers)
+    clips_data = res.json()
+    
+    clips_array = clips_data['data'] # get array of clips for clips_list
+    clips_list.extend(clips_array)
+    
+    print(f"First batch: {len(clips_list)} clips")
+    
+    # I want to display ALL clips in one data structure so I can work with them later
+    while clips_data['pagination'].get('cursor'):
+      # update params 
+      after = clips_data['pagination'].get('cursor')
+      params = {'broadcaster_id': broadcaster_id, 'after': after}
+      
+      # make new request
+      res = requests.get(clips_url, params=params, headers=headers) 
+      clips_data = res.json()
+      
+      # extend/append list
+      clips_array = clips_data['data']
+      clips_list.extend(clips_array)
+      print(f"Fetched another page. Total clips now: {len(clips_list)}")
+    
+    print(f"Total clips fetched: {len(clips_list)}")
   else:
-    print('user logs into twitch')
+    print('Placeholder')
   
   return render_template('index.html')
 
