@@ -35,6 +35,7 @@ def login():
     data = res.json()
     broadcaster_id = data['data'][0]['id'] # 0 points to the first json object in the list of dicts (this only returned one, but could return multiple based on the params (such as more than one login username passed))
     
+    # --------------------------------------------------------------------------------------------------------------------------------------------------------
     
     # get clips for a channel using broadcaster_id
     params = {'broadcaster_id': broadcaster_id}
