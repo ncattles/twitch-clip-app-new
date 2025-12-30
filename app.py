@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
 from dotenv import load_dotenv
 from datetime import datetime
 import os
@@ -21,113 +21,133 @@ access_token = access_token['access_token']
 # re-usable header for API calls
 headers = {'Authorization': f'Bearer {access_token}', 'Client-Id': app.config['TWITCH_CLIENT_ID']}
 
-# homepage
-@app.route('/', methods = ['GET', 'POST'])
-def login():
-  if request.method == 'POST':
-    
-    # get channel name from template and construct obj to pass
-    channel_name = request.form.get('channel_name')
-    params = {'login': channel_name}
-    
-    # get broadcaster_id from channel name
-    broadcaster_id_url = 'https://api.twitch.tv/helix/users'
-    try:
-      res = requests.get(broadcaster_id_url, params=params, headers=headers) 
-      res.raise_for_status()
-    
-    except requests.RequestException as e:
-      return render_template('index.html', error=f'Network error: {str(e)}')
+# ============================================================================
+# Helper Functions
+# ============================================================================
 
-    data = res.json()
-    if len(data['data']) == 0:
-      return render_template('index.html', error='Channel not found. Please check the spelling and try again.')
-    broadcaster_id = data['data'][0]['id'] # 0 points to the first json object in the list of dicts (this only returned one, but could return multiple based on the params (such as more than one login username passed))
-    
-    
-  # --------------------------------------------------------------------------------------------------------------------------------------------------------
-    
-    
-    # get clips for a channel using broadcaster_id
-    params = {'broadcaster_id': broadcaster_id}
-    
-    clips_list = [] # list that will store all clips for channel
-    
-    # initial request
-    clips_url = 'https://api.twitch.tv/helix/clips'
+def get_broadcaster_id(channel_name):
+  """Fetch broadcaster_id from channel name. Returns None on error."""
+  params = {'login': channel_name}
+
+  broadcaster_id_url = 'https://api.twitch.tv/helix/users'
+  try:
+    res = requests.get(broadcaster_id_url, params=params, headers=headers)
+    res.raise_for_status()
+  except requests.RequestException:
+    return None
+
+  data = res.json()
+  if len(data['data']) == 0:
+    return None
+
+  return data['data'][0]['id'] # 0 is the first object in the list of objs
+
+
+def fetch_all_clips(broadcaster_id):
+  """Fetch all clips for a broadcaster using pagination. Returns list of clips."""
+  params = {'broadcaster_id': broadcaster_id}
+  clips_list = []
+
+  clips_url = 'https://api.twitch.tv/helix/clips'
+  try:
+    res = requests.get(clips_url, params=params, headers=headers)
+    res.raise_for_status()
+  except requests.RequestException:
+    return []
+
+  clips_data = res.json()
+  clips_array = clips_data['data']
+  clips_list.extend(clips_array)
+
+  # Fetch remaining pages
+  while clips_data['pagination'].get('cursor'):
+    after = clips_data['pagination'].get('cursor')
+    params = {'broadcaster_id': broadcaster_id, 'after': after}
+
     try:
       res = requests.get(clips_url, params=params, headers=headers)
       res.raise_for_status()
-    
-    except requests.RequestException as e:
-      return render_template('index.html', error=f'Error fetching clips: {str(e)}')
+    except requests.RequestException:
+      break  # Return what we have so far
 
     clips_data = res.json()
-    
-    clips_array = clips_data['data'] # get array of clips for clips_list
+    clips_array = clips_data['data']
     clips_list.extend(clips_array)
-    
-    # I want to display ALL clips in one data structure so I can work with them later
-    while clips_data['pagination'].get('cursor'):
-      # update params 
-      after = clips_data['pagination'].get('cursor')
-      params = {'broadcaster_id': broadcaster_id, 'after': after}
-      
-      # make new request
-      try:
-        res = requests.get(clips_url, params=params, headers=headers) 
-        res.raise_for_status()
-      
-      except requests.RequestException as e:
-        return render_template('index.html', error=f'Error fetching clips: {str(e)}')
 
-      clips_data = res.json()
-      
-      # extend/append list
-      clips_array = clips_data['data']
-      clips_list.extend(clips_array)
-    
-    if len(clips_list) == 0:
-      return render_template('index.html', error='This channel has no clips yet.')
-    
-    # format dates for display
-    for clip in clips_list:
-      # parse ISO 8601 timestamp and format it nicely
-      created_at = datetime.fromisoformat(clip['created_at'].replace('Z', '+00:00'))
-      clip['formatted_date'] = created_at.strftime('%B %d, %Y')
+  return clips_list
 
-    # get all unique games in clips_list and fetch the game name associated with it
-    unique_games = set()
-    for clip in clips_list:
-      if not clip['game_id']:
-        continue
+
+def enrich_clips_with_dates(clips_list):
+  """Add formatted_date field to each clip. Modifies clips_list in place."""
+  for clip in clips_list:
+    created_at = datetime.fromisoformat(clip['created_at'].replace('Z', '+00:00'))
+    clip['formatted_date'] = created_at.strftime('%B %d, %Y')
+
+
+def enrich_clips_with_game_names(clips_list):
+  """Add game_name field to each clip. Modifies clips_list in place."""
+  # Collect unique game IDs
+  unique_games = set()
+  for clip in clips_list:
+    if clip['game_id']:
       unique_games.add(clip['game_id'])
-    
-    
-    games_url = 'https://api.twitch.tv/helix/games'
-    
-    # construct params
-    params = []
-    for game in unique_games:
-      params.append(('id', game)) # tuple is sent for multiple params
-    
-    try: 
-      res = requests.get(games_url, params=params, headers=headers)  
-      res.raise_for_status()
-    
-    except requests.RequestException as e:
-        return render_template('index.html', error=f'Error fetching games titles: {str(e)}')
-    
-    data = res.json()
-    data = data['data'] # only need list of objs
-    game_dict = {game['id'] : game['name'] for game in data} # create a dict storing the game id and game name using list comprehension
-    
+
+  if not unique_games:
+    # No games to fetch
     for clip in clips_list:
-      game_id = clip['game_id']
-      clip['game_name'] = game_dict.get(game_id, 'Unknown Game') # game name is now available in clips_list
-    
-    
-    # display clips
-    return render_template('channels.html', clips=clips_list)
-  
+      clip['game_name'] = 'Unknown Game'
+    return
+
+  # Fetch game names from API
+  games_url = 'https://api.twitch.tv/helix/games'
+  params = [('id', game) for game in unique_games]
+
+  try:
+    res = requests.get(games_url, params=params, headers=headers)
+    res.raise_for_status()
+    data = res.json()
+    game_dict = {game['id']: game['name'] for game in data['data']}
+  except requests.RequestException:
+    # If fetch fails, use Unknown Game
+    game_dict = {}
+
+  # Add game names to clips
+  for clip in clips_list:
+    game_id = clip['game_id']
+    clip['game_name'] = game_dict.get(game_id, 'Unknown Game')
+
+
+# ============================================================================
+# Routes
+# ============================================================================
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+  if request.method == 'POST':
+    channel_name = request.form.get('channel_name')
+
+    if not channel_name or channel_name.strip() == '':
+      return render_template('index.html', error='Please enter a channel name')
+
+    return redirect(url_for('show_channel_clips', channel_name=channel_name))
+
   return render_template('index.html')
+
+
+@app.route('/<channel_name>')
+def show_channel_clips(channel_name):
+  # Get broadcaster ID
+  broadcaster_id = get_broadcaster_id(channel_name)
+  if not broadcaster_id:
+    return render_template('index.html', error='Channel not found. Please check the spelling and try again.')
+
+  # Fetch all clips
+  clips_list = fetch_all_clips(broadcaster_id)
+  if not clips_list:
+    return render_template('index.html', error='This channel has no clips yet.')
+
+  # Enrich clips with additional data
+  enrich_clips_with_dates(clips_list)
+  enrich_clips_with_game_names(clips_list)
+
+  return render_template('channels.html', clips=clips_list)
