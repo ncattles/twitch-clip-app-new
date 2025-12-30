@@ -96,6 +96,37 @@ def login():
       created_at = datetime.fromisoformat(clip['created_at'].replace('Z', '+00:00'))
       clip['formatted_date'] = created_at.strftime('%B %d, %Y')
 
+    # get all unique games in clips_list and fetch the game name associated with it
+    unique_games = set()
+    for clip in clips_list:
+      if not clip['game_id']:
+        continue
+      unique_games.add(clip['game_id'])
+    
+    
+    games_url = 'https://api.twitch.tv/helix/games'
+    
+    # construct params
+    params = []
+    for game in unique_games:
+      params.append(('id', game)) # tuple is sent for multiple params
+    
+    try: 
+      res = requests.get(games_url, params=params, headers=headers)  
+      res.raise_for_status()
+    
+    except requests.RequestException as e:
+        return render_template('index.html', error=f'Error fetching games titles: {str(e)}')
+    
+    data = res.json()
+    data = data['data'] # only need list of objs
+    game_dict = {game['id'] : game['name'] for game in data} # create a dict storing the game id and game name using list comprehension
+    
+    for clip in clips_list:
+      game_id = clip['game_id']
+      clip['game_name'] = game_dict.get(game_id, 'Unknown Game') # game name is now available in clips_list
+    
+    
     # display clips
     return render_template('channels.html', clips=clips_list)
   
