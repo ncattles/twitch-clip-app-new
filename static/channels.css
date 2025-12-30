@@ -116,7 +116,7 @@ h1 {
   justify-content: space-between;
   align-items: center;
   font-size: 0.85rem;
-  color: #999999;
+  color: #b8b8b8;
   padding-bottom: 12px;
   border-bottom: 1px solid #2a2a2a;
 }
@@ -127,8 +127,14 @@ h1 {
 }
 
 .views {
-  color: #666666;
+  color: #999999;
   font-size: 0.8rem;
+}
+
+.clip-game {
+  font-size: 0.85rem;
+  color: #888888;
+  font-weight: 500;
 }
 
 .clip-creator {
