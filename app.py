@@ -32,11 +32,21 @@ def login():
     
     # get broadcaster_id from channel name
     broadcaster_id_url = 'https://api.twitch.tv/helix/users'
-    res = requests.get(broadcaster_id_url, params=params, headers=headers) 
+    try:
+      res = requests.get(broadcaster_id_url, params=params, headers=headers) 
+      res.raise_for_status()
+    
+    except requests.RequestException as e:
+      return render_template('index.html', error=f'Network error: {str(e)}')
+
     data = res.json()
+    if len(data['data']) == 0:
+      return render_template('index.html', error='Channel not found. Please check the spelling and try again.')
     broadcaster_id = data['data'][0]['id'] # 0 points to the first json object in the list of dicts (this only returned one, but could return multiple based on the params (such as more than one login username passed))
     
-    # --------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+    
     
     # get clips for a channel using broadcaster_id
     params = {'broadcaster_id': broadcaster_id}
@@ -45,13 +55,17 @@ def login():
     
     # initial request
     clips_url = 'https://api.twitch.tv/helix/clips'
-    res = requests.get(clips_url, params=params, headers=headers)
+    try:
+      res = requests.get(clips_url, params=params, headers=headers)
+      res.raise_for_status()
+    
+    except requests.RequestException as e:
+      return render_template('index.html', error=f'Error fetching clips: {str(e)}')
+
     clips_data = res.json()
     
     clips_array = clips_data['data'] # get array of clips for clips_list
     clips_list.extend(clips_array)
-    
-    print(f"First batch: {len(clips_list)} clips")
     
     # I want to display ALL clips in one data structure so I can work with them later
     while clips_data['pagination'].get('cursor'):
@@ -60,16 +74,22 @@ def login():
       params = {'broadcaster_id': broadcaster_id, 'after': after}
       
       # make new request
-      res = requests.get(clips_url, params=params, headers=headers) 
+      try:
+        res = requests.get(clips_url, params=params, headers=headers) 
+        res.raise_for_status()
+      
+      except requests.RequestException as e:
+        return render_template('index.html', error=f'Error fetching clips: {str(e)}')
+
       clips_data = res.json()
       
       # extend/append list
       clips_array = clips_data['data']
       clips_list.extend(clips_array)
-      print(f"Fetched another page. Total clips now: {len(clips_list)}")
     
-    print(f"Total clips fetched: {len(clips_list)}")
-
+    if len(clips_list) == 0:
+      return render_template('index.html', error='This channel has no clips yet.')
+    
     # format dates for display
     for clip in clips_list:
       # parse ISO 8601 timestamp and format it nicely
@@ -78,4 +98,5 @@ def login():
 
     # display clips
     return render_template('channels.html', clips=clips_list)
+  
   return render_template('index.html')
