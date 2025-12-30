@@ -68,8 +68,7 @@ def login():
       print(f"Fetched another page. Total clips now: {len(clips_list)}")
     
     print(f"Total clips fetched: {len(clips_list)}")
-  else:
-    print('Placeholder')
-  
+    
+    # display clips 
+    return render_template('channels.html', clips=clips_list)
   return render_template('index.html')
-

@@ -1,0 +1,31 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>Mesiafy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='channels.css') }}">
+  </head>
+  <body>
+    <header>
+      <h1>Mesiafy</h1>
+    </header>
+
+    <div class="clips-grid">
+      {% for clip in clips %}
+        <div class="clip-card">
+          <a href="{{clip.url}}" target="_blank" class="thumbnail-link">
+            <img src="{{clip.thumbnail_url}}" alt="{{clip.title}}" class="thumbnail">
+          </a>
+          <div class="clip-info">
+            <h3 class="clip-title">{{clip.title}}</h3>
+            <p class="clip-meta">
+              <span class="streamer">{{clip.broadcaster_name}}</span>
+              <span class="views">👁 {{clip.view_count}} views</span>
+            </p>
+            <p class="clip-creator">Clipped by {{clip.creator_name}}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>

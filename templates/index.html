@@ -2,15 +2,16 @@
 
 <html>
   <head>
-    <title>Twitch Clip App</title>
+    <title>Mesiafy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
   </head>
   <body>
-    <h1>Twitch Clip App</h1>
+    <h1>Mesiafy</h1>
     <div>
-      <h2>Enter your Twitch Channel Name</h2>
+      <h2>Enter a Twitch Channel</h2>
       <form action="/" method="post">
         <input type="text" name="channel_name">
-        <input type="submit" value="Submit">
+        <input id="submit" type="submit" value="Submit">
       </form>
     </div>
   </body>
