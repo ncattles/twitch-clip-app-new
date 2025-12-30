@@ -7,7 +7,7 @@
   </head>
   <body>
     <header>
-      <h1>Mesiafy</h1>
+      <h1><a href="/" class="home-link">Mesiafy</a></h1>
     </header>
 
     <div class="clips-grid">
@@ -23,6 +23,7 @@
               <span class="views">👁 {{clip.view_count}} views</span>
             </p>
             <p class="clip-creator">Clipped by {{clip.creator_name}}</p>
+            <p class="clip-date">{{clip.formatted_date}}</p>
           </div>
         </div>
       {% endfor %}

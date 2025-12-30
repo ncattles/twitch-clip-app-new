@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template
 from dotenv import load_dotenv
+from datetime import datetime
 import os
 import requests
 
@@ -68,7 +69,13 @@ def login():
       print(f"Fetched another page. Total clips now: {len(clips_list)}")
     
     print(f"Total clips fetched: {len(clips_list)}")
-    
-    # display clips 
+
+    # format dates for display
+    for clip in clips_list:
+      # parse ISO 8601 timestamp and format it nicely
+      created_at = datetime.fromisoformat(clip['created_at'].replace('Z', '+00:00'))
+      clip['formatted_date'] = created_at.strftime('%B %d, %Y')
+
+    # display clips
     return render_template('channels.html', clips=clips_list)
   return render_template('index.html')

@@ -28,6 +28,16 @@ h1 {
   letter-spacing: -1px;
 }
 
+.home-link {
+  color: #ffffff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.home-link:hover {
+  color: #667eea;
+}
+
 /* Grid container */
 .clips-grid {
   display: grid;
@@ -124,6 +134,12 @@ h1 {
 .clip-creator {
   font-size: 0.8rem;
   color: #666666;
+}
+
+.clip-date {
+  font-size: 0.75rem;
+  color: #555555;
+  margin-top: 4px;
 }
 
 /* Responsive adjustments */
