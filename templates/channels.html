@@ -10,9 +10,37 @@
       <h1><a href="/" class="home-link">Mesiafy</a></h1>
     </header>
 
+    <div class="controls-bar">
+      <div class="controls-section">
+        <span class="controls-label">Sort by:</span>
+        <button id="sort-views" class="control-btn" data-sort="none">Views</button>
+        <button id="sort-date" class="control-btn" data-sort="none">Date</button>
+      </div>
+
+      <div class="controls-section">
+        <span class="controls-label">Filter by:</span>
+        <select id="filter-game" class="filter-select">
+          <option value="">All Games</option>
+        </select>
+        <select id="filter-creator" class="filter-select">
+          <option value="">All Creators</option>
+        </select>
+      </div>
+
+      <div class="controls-section">
+        <button id="clear-filters" class="control-btn secondary">Clear Filters</button>
+        <span id="clip-count" class="clip-count">Showing {{ clips|length }} clips</span>
+      </div>
+    </div>
+
     <div class="clips-grid">
       {% for clip in clips %}
-        <div class="clip-card" data-page={{(loop.index0 // 20) + 1}}>
+        <div class="clip-card"
+             data-page={{(loop.index0 // 20) + 1}}
+             data-views="{{clip.view_count}}"
+             data-date="{{clip.created_at}}"
+             data-game="{{clip.game_name}}"
+             data-creator="{{clip.creator_name}}">
           <a href="{{clip.url}}" target="_blank" class="thumbnail-link">
             <img src="{{clip.thumbnail_url}}" alt="{{clip.title}}" class="thumbnail">
           </a>
