@@ -31,13 +31,11 @@
     </div>
 
     <div class="pagination">
-      {% for page_item in page_numbers %}
-        {% if page_item == '...' %}
-          <span class="pagination-ellipsis">{{page_item}}</span>
-        {% else %}
-          <button data-page="{{page_item}}">{{page_item}}</button>
-        {% endif %}
-      {% endfor %}
+      <button id="first-page" class="nav-btn">First</button>
+      <button id="prev-page" class="nav-btn">← Prev</button>
+      <span class="page-indicator">Page <span id="current-page">1</span> of <span id="total-pages">{{num_of_pages}}</span></span>
+      <button id="next-page" class="nav-btn">Next →</button>
+      <button id="last-page" class="nav-btn">Last</button>
     </div>
   </body>
 

@@ -1,95 +1,16 @@
-// Get total pages from the initial buttons
-let totalPages = 0;
-const initialButtons = document.querySelectorAll('button[data-page]');
-initialButtons.forEach(function(button) {
-  const pageNum = parseInt(button.dataset.page);
-  if (pageNum > totalPages) {
-    totalPages = pageNum;
-  }
-});
+// Get total pages from the DOM
+const totalPagesElement = document.getElementById('total-pages');
+const totalPages = parseInt(totalPagesElement.textContent);
 
-// Calculate which page numbers to show based on current page
-function getPageNumbers(currentPage, total, maxVisible = 11) {
-  if (total <= maxVisible) {
-    // Show all pages if total is small
-    const pages = [];
-    for (let i = 1; i <= total; i++) {
-      pages.push(i);
-    }
-    return pages;
-  }
+// Track current page
+let currentPage = 1;
 
-  const pages = [];
-  const sidePages = 4; // Pages to show on each side of current page
-
-  // Always show first page
-  pages.push(1);
-
-  // Calculate range around current page
-  let rangeStart = Math.max(2, currentPage - sidePages);
-  let rangeEnd = Math.min(total - 1, currentPage + sidePages);
-
-  // Adjust range if too close to start or end
-  if (currentPage <= sidePages + 2) {
-    rangeEnd = Math.min(total - 1, maxVisible - 2);
-  }
-  if (currentPage >= total - sidePages - 1) {
-    rangeStart = Math.max(2, total - maxVisible + 2);
-  }
-
-  // Add ellipsis and range
-  if (rangeStart > 2) {
-    pages.push('...');
-  }
-  for (let i = rangeStart; i <= rangeEnd; i++) {
-    pages.push(i);
-  }
-  if (rangeEnd < total - 1) {
-    pages.push('...');
-  }
-
-  // Always show last page
-  if (total > 1) {
-    pages.push(total);
-  }
-
-  return pages;
-}
-
-// Rebuild pagination buttons based on current page
-function rebuildPagination(currentPage) {
-  const paginationDiv = document.querySelector('.pagination');
-  const pageNumbers = getPageNumbers(currentPage, totalPages);
-
-  // Clear existing buttons
-  paginationDiv.innerHTML = '';
-
-  // Create new buttons
-  pageNumbers.forEach(function(pageItem) {
-    if (pageItem === '...') {
-      const ellipsis = document.createElement('span');
-      ellipsis.className = 'pagination-ellipsis';
-      ellipsis.textContent = '...';
-      paginationDiv.appendChild(ellipsis);
-    } else {
-      const button = document.createElement('button');
-      button.dataset.page = pageItem;
-      button.textContent = pageItem;
-
-      // Add active class if this is current page
-      if (pageItem === currentPage) {
-        button.classList.add('active');
-      }
-
-      // Add click listener
-      button.addEventListener('click', function() {
-        showPage(pageItem);
-      });
-
-      paginationDiv.appendChild(button);
-    }
-  });
-}
+// Get buttons
+const firstBtn = document.getElementById('first-page');
+const prevBtn = document.getElementById('prev-page');
+const nextBtn = document.getElementById('next-page');
+const lastBtn = document.getElementById('last-page');
+const currentPageDisplay = document.getElementById('current-page');
 
 // Function to show clips for a specific page
 function showPage(pageNumber) {
@@ -106,12 +27,48 @@ function showPage(pageNumber) {
     }
   });
 
-  // Rebuild pagination buttons for current page
-  rebuildPagination(pageNumber);
+  // Update current page
+  currentPage = pageNumber;
+  currentPageDisplay.textContent = currentPage;
+
+  // Update button states
+  updateButtonStates();
 
   // Snap to top
   window.scrollTo(0, 0);
 }
+
+// Update button enabled/disabled states
+function updateButtonStates() {
+  // Disable First/Prev if on first page
+  firstBtn.disabled = currentPage === 1;
+  prevBtn.disabled = currentPage === 1;
+
+  // Disable Next/Last if on last page
+  nextBtn.disabled = currentPage === totalPages;
+  lastBtn.disabled = currentPage === totalPages;
+}
+
+// Button click handlers
+firstBtn.addEventListener('click', function() {
+  showPage(1);
+});
+
+prevBtn.addEventListener('click', function() {
+  if (currentPage > 1) {
+    showPage(currentPage - 1);
+  }
+});
+
+nextBtn.addEventListener('click', function() {
+  if (currentPage < totalPages) {
+    showPage(currentPage + 1);
+  }
+});
+
+lastBtn.addEventListener('click', function() {
+  showPage(totalPages);
+});
 
 // Show page 1 on initial load
 showPage(1);
