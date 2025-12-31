@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import os
 import requests
+import math
 
 load_dotenv()
 app = Flask(__name__)
@@ -100,7 +101,7 @@ def enrich_clips_with_game_names(clips_list):
 
   # Fetch game names from API
   games_url = 'https://api.twitch.tv/helix/games'
-  params = [('id', game) for game in unique_games]
+  params = [('id', game) for game in unique_games] # list comprehension
 
   try:
     res = requests.get(games_url, params=params, headers=headers)
@@ -116,7 +117,22 @@ def enrich_clips_with_game_names(clips_list):
     game_id = clip['game_id']
     clip['game_name'] = game_dict.get(game_id, 'Unknown Game')
 
-
+''' Server-side pagination
+def paginate_clips(clips_list, page_number):
+  """Return clips that correspond to page number."""  
+  page_number = int(page_number)
+  num_of_clips_to_return = 18 # 18 clips per page
+  num_of_clips = len(clips_list)
+  
+  num_of_pages = math.ceil(num_of_clips / num_of_clips_to_return)
+  
+  start_index = (page_number * num_of_clips_to_return) - num_of_clips_to_return
+  end_index = start_index + num_of_clips_to_return
+  
+  clips_list = clips_list[start_index:end_index]
+  
+  return clips_list        
+  '''  
 # ============================================================================
 # Routes
 # ============================================================================
@@ -150,4 +166,8 @@ def show_channel_clips(channel_name):
   enrich_clips_with_dates(clips_list)
   enrich_clips_with_game_names(clips_list)
 
+  ''' # Server side pagination
+    # Paginate clips
+    clips_list = paginate_clips(clips_list, page_number)
+  '''
   return render_template('channels.html', clips=clips_list)
