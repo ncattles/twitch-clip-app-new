@@ -136,7 +136,7 @@ def paginate_clips(clips_list, page_number):
   
 def calculate_num_of_pages(clips_list):
   """Returns total number of pages for pagination on client-side."""
-  clips_per_page = 18
+  clips_per_page = 20
   num_of_clips = len(clips_list)
 
   num_of_pages = math.ceil(num_of_clips / clips_per_page)

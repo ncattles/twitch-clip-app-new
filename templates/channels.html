@@ -12,7 +12,7 @@
 
     <div class="clips-grid">
       {% for clip in clips %}
-        <div class="clip-card" data-page={{(loop.index0 // 18) + 1}}>
+        <div class="clip-card" data-page={{(loop.index0 // 20) + 1}}>
           <a href="{{clip.url}}" target="_blank" class="thumbnail-link">
             <img src="{{clip.thumbnail_url}}" alt="{{clip.title}}" class="thumbnail">
           </a>
