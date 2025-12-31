@@ -12,7 +12,7 @@
 
     <div class="clips-grid">
       {% for clip in clips %}
-        <div class="clip-card">
+        <div class="clip-card" data-page={{(loop.index0 // 18) + 1}}>
           <a href="{{clip.url}}" target="_blank" class="thumbnail-link">
             <img src="{{clip.thumbnail_url}}" alt="{{clip.title}}" class="thumbnail">
           </a>
@@ -29,5 +29,17 @@
         </div>
       {% endfor %}
     </div>
+
+    <div class="pagination">
+      {% for page_item in page_numbers %}
+        {% if page_item == '...' %}
+          <span class="pagination-ellipsis">{{page_item}}</span>
+        {% else %}
+          <button data-page="{{page_item}}">{{page_item}}</button>
+        {% endif %}
+      {% endfor %}
+    </div>
   </body>
+
+  <script src="{{ url_for('static', filename='js/pagination.js') }}"></script>
 </html>

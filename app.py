@@ -133,6 +133,49 @@ def paginate_clips(clips_list, page_number):
   
   return clips_list        
   '''  
+  
+def calculate_num_of_pages(clips_list):
+  """Returns total number of pages for pagination on client-side."""
+  clips_per_page = 18
+  num_of_clips = len(clips_list)
+
+  num_of_pages = math.ceil(num_of_clips / clips_per_page)
+
+  return num_of_pages
+
+def get_page_numbers(total_pages, max_visible=7):
+  """
+  Returns a list of page numbers to display with '...' for gaps.
+  Example: [1, '...', 5, 6, 7, 8, 9, '...', 20]
+  """
+  if total_pages <= max_visible:
+    # Show all pages if total is small
+    return list(range(1, total_pages + 1))
+
+  # Always show first and last page
+  # Show middle range around a default middle position
+  pages = []
+  pages.append(1)
+
+  # Calculate middle range
+  middle = max_visible - 2  # Subtract first and last page
+  start = 2
+  end = total_pages - 1
+
+  # For initial load, show pages 2-6 (or similar)
+  if end - start + 1 > middle:
+    pages.append('...')
+    for i in range(2, 2 + middle):
+      pages.append(i)
+    pages.append('...')
+  else:
+    for i in range(start, end + 1):
+      pages.append(i)
+
+  pages.append(total_pages)
+
+  return pages
+  
 # ============================================================================
 # Routes
 # ============================================================================
@@ -166,8 +209,12 @@ def show_channel_clips(channel_name):
   enrich_clips_with_dates(clips_list)
   enrich_clips_with_game_names(clips_list)
 
+  # Calculate number of pages for client-side rendering
+  num_of_pages = calculate_num_of_pages(clips_list)
+  page_numbers = get_page_numbers(num_of_pages)
+
   ''' # Server side pagination
     # Paginate clips
     clips_list = paginate_clips(clips_list, page_number)
   '''
-  return render_template('channels.html', clips=clips_list)
+  return render_template('channels.html', clips=clips_list, num_of_pages=num_of_pages, page_numbers=page_numbers)

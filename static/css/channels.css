@@ -171,3 +171,52 @@ h1 {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 40px auto;
+  padding: 20px;
+  max-width: 1400px;
+}
+
+.pagination button {
+  background: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #2a2a2a;
+  padding: 12px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  min-width: 45px;
+}
+
+.pagination button:hover {
+  background: #667eea;
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.pagination button:active {
+  transform: translateY(0);
+}
+
+.pagination button.active {
+  background: #667eea;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.pagination-ellipsis {
+  color: #666666;
+  padding: 12px 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  user-select: none;
+}
