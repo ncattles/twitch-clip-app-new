@@ -2,6 +2,10 @@
 const totalPagesElement = document.getElementById('total-pages');
 const totalPages = parseInt(totalPagesElement.textContent);
 
+// Get clips-grid and clip-cards from the DOM
+const grid = document.querySelector('.clips-grid');
+const allCards = document.querySelectorAll('.clip-card');
+
 // Track current page
 let currentPage = 1;
 
@@ -12,9 +16,38 @@ const nextBtn = document.getElementById('next-page');
 const lastBtn = document.getElementById('last-page');
 const currentPageDisplay = document.getElementById('current-page');
 
+// Function to populate filters for channel
+function populateFilters() {
+  const filterGamesBtn = document.getElementById('filter-game');
+  const filterCreatorsBtn = document.getElementById('filter-creator');
+  
+  // Add unique games and creators to Sets
+  let uniqueGames = new Set();
+  let uniqueCreators = new Set();
+
+  allCards.forEach(function(card) {
+    const game = card.dataset.game;
+    const creator = card.dataset.creator;
+
+    uniqueGames.add(game);
+    uniqueCreators.add(creator);    
+  });
+
+  // Sort the sets by converting to array then sorting
+  let gamesArray = [...uniqueGames].sort((a, b) => a.localeCompare(b));
+  let creatorsArray = [...uniqueCreators].sort((a, b) => a.localeCompare(b));
+
+  // Add Sets to Dropdown
+  gamesArray.forEach(game => {
+    filterGamesBtn.add(new Option(game, game))
+  });
+  creatorsArray.forEach(creator => {
+    filterCreatorsBtn.add(new Option(creator, creator))
+  });
+}
+
 // Function to show clips for a specific page
 function showPage(pageNumber) {
-  const allCards = document.querySelectorAll('.clip-card');
 
   // Show/hide cards based on page number
   allCards.forEach(function(card) {
@@ -72,3 +105,5 @@ lastBtn.addEventListener('click', function() {
 
 // Show page 1 on initial load
 showPage(1);
+// Populate filters on inital load
+populateFilters();
