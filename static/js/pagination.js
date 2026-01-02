@@ -7,8 +7,8 @@ let totalClipsElement = document.getElementById('clip-count');
 
 // Get clip components from the DOM
 const grid = document.querySelector('.clips-grid');
-const allCards = document.querySelectorAll('.clip-card');
-const originalOrder = [...allCards];
+const allCardsElement = document.querySelectorAll('.clip-card');
+let visibleCards = [...allCardsElement];
 
 // Track current page
 let currentPage = 1;
@@ -31,7 +31,7 @@ function populateFilters() {
   let uniqueGames = new Set();
   let uniqueCreators = new Set();
 
-  allCards.forEach(function(card) {
+  allCardsElement.forEach(function(card) {
     const game = card.dataset.game;
     const creator = card.dataset.creator;
 
@@ -75,29 +75,25 @@ function sortViews() {
       break;
   }
 
-  let sortedOrder = [...allCards]; 
   // none -> asc -> desc -> none
   if (currentSortView === 'none') {
-    originalOrder.forEach(card => {
-      grid.appendChild(card);
-    });
-    return;
+    appendGrid(visibleCards);
+    recalculatePageNumber(visibleCards);
+    showPage(1);
   }
   else if (currentSortView === 'asc') {
-    sortedOrder = [...allCards].sort((a, b) => parseInt(a.dataset.views) - parseInt(b.dataset.views)); // convert to int then subtract 
+    visibleCards = [...visibleCards].sort((a, b) => parseInt(a.dataset.views) - parseInt(b.dataset.views)); // convert to int then subtract 
 
-    sortedOrder.forEach(card => {
-      grid.appendChild(card);
-    });
-    return;
+    appendGrid(visibleCards);
+    recalculatePageNumber(visibleCards);
+    showPage(1);
   }
   else if (currentSortView === 'desc') {
-    sortedOrder = [...allCards].sort((a, b) => parseInt(b.dataset.views) - parseInt(a.dataset.views)); // convert to int then subtract
+    visibleCards = [...visibleCards].sort((a, b) => parseInt(b.dataset.views) - parseInt(a.dataset.views)); // convert to int then subtract
 
-    sortedOrder.forEach(card => {
-      grid.appendChild(card);
-    });
-    return;
+    appendGrid(visibleCards);
+    recalculatePageNumber(visibleCards);
+    showPage(1);
   }
 }
 
@@ -119,30 +115,26 @@ function sortDates() {
       dataSort.dataset.sort = currentSortDate;
       break;
   }
-
-  let sortedOrder = [...allCards]; 
+ 
   // none -> asc -> desc -> none
   if (currentSortDate === 'none') {
-    originalOrder.forEach(card => {
-      grid.appendChild(card);
-    });
-    return;
+    appendGrid(visibleCards);
+    recalculatePageNumber(visibleCards);
+    showPage(1);
   }
   else if (currentSortDate === 'asc') {
-    sortedOrder = [...allCards].sort((a, b) => a.dataset.date.localeCompare(b.dataset.date)); 
+    visibleCards = [...visibleCards].sort((a, b) => a.dataset.date.localeCompare(b.dataset.date)); 
 
-    sortedOrder.forEach(card => {
-      grid.appendChild(card);
-    });
-    return;
+    appendGrid(visibleCards);
+    recalculatePageNumber(visibleCards);
+    showPage(1);
   }
   else if (currentSortDate === 'desc') {
-    sortedOrder = [...allCards].sort((a, b) => b.dataset.date.localeCompare(a.dataset.date)); 
+    visibleCards = [...visibleCards].sort((a, b) => b.dataset.date.localeCompare(a.dataset.date)); 
 
-    sortedOrder.forEach(card => {
-      grid.appendChild(card);
-    });
-    return;
+    appendGrid(visibleCards);
+    recalculatePageNumber(visibleCards);
+    showPage(1);
   }
 }
 
@@ -154,7 +146,7 @@ function applyFilters() {
   let clipsList = []; // new list for re-pagination
 
   // Display matching filtered clips
-  allCards.forEach(function(card) {
+  allCardsElement.forEach(function(card) {
     let matchesGame = selectedGame === card.dataset.game || selectedGame === '';
     let matchesCreator = selectedCreator === card.dataset.creator || selectedCreator === '';
 
@@ -166,10 +158,11 @@ function applyFilters() {
     }
   });
 
-  // Recalculate page number for each clip
-  clipsList.forEach(function(clip, index) {
-    clip.dataset.page = Math.floor(index / 20) + 1;
-  });
+  // Reassign visibleCards to be equal to clipsList
+  visibleCards = clipsList;
+
+  // Recalculate page numbers
+  recalculatePageNumber(clipsList);
 
   // Recalculate total number of pages, then display it
   totalPagesElement.textContent = Math.ceil(clipsList.length / 20);  
@@ -181,11 +174,25 @@ function applyFilters() {
   showPage(1); // show first page
 }
 
+// Helper function to recalculate page number for each clip in list
+function recalculatePageNumber(list) {
+  list.forEach(function(clip, index) {
+    clip.dataset.page = Math.floor(index / 20) + 1;
+  });
+}
+
+// Helper function to append grid
+function appendGrid(list) {
+  list.forEach(card => {
+      grid.appendChild(card);
+  });
+}
+
 // Function to show clips for a specific page
 function showPage(pageNumber) {
 
   // Show/hide cards based on page number
-  allCards.forEach(function(card) {
+  allCardsElement.forEach(function(card) {
     const cardPage = card.dataset.page;
 
     if (cardPage === String(pageNumber)) {
