@@ -26,7 +26,6 @@ const filterCreatorsBtn = document.getElementById('filter-creator');
 
 // Function to populate filters for channel
 function populateFilters() {
-  
   // Add unique games and creators to Sets
   let uniqueGames = new Set();
   let uniqueCreators = new Set();
@@ -75,13 +74,21 @@ function sortViews() {
       break;
   }
 
+  // Reset the date sort when views sort is activated
+    currentSortDate = 'none';
+    sortDateBtn.textContent = 'Date';
+    sortDateBtn.dataset.sort = 'none';
+
   // none -> asc -> desc -> none
   if (currentSortView === 'none') {
+    sortViewsBtn.textContent = 'Views';
     appendGrid(visibleCards);
     recalculatePageNumber(visibleCards);
     showPage(1);
+    return;
   }
   else if (currentSortView === 'asc') {
+    sortViewsBtn.textContent = 'Views ↑';
     visibleCards = [...visibleCards].sort((a, b) => parseInt(a.dataset.views) - parseInt(b.dataset.views)); // convert to int then subtract 
 
     appendGrid(visibleCards);
@@ -89,6 +96,7 @@ function sortViews() {
     showPage(1);
   }
   else if (currentSortView === 'desc') {
+    sortViewsBtn.textContent = 'Views ↓';
     visibleCards = [...visibleCards].sort((a, b) => parseInt(b.dataset.views) - parseInt(a.dataset.views)); // convert to int then subtract
 
     appendGrid(visibleCards);
@@ -115,14 +123,21 @@ function sortDates() {
       dataSort.dataset.sort = currentSortDate;
       break;
   }
+
+  // Reset the views sort when date sort is activated
+  currentSortView = 'none';
+  sortViewsBtn.textContent = 'Views';
+  sortViewsBtn.dataset.sort = 'none';
  
   // none -> asc -> desc -> none
   if (currentSortDate === 'none') {
+    sortDateBtn.textContent = 'Date';
     appendGrid(visibleCards);
     recalculatePageNumber(visibleCards);
     showPage(1);
   }
   else if (currentSortDate === 'asc') {
+    sortDateBtn.textContent = 'Date ↑';
     visibleCards = [...visibleCards].sort((a, b) => a.dataset.date.localeCompare(b.dataset.date)); 
 
     appendGrid(visibleCards);
@@ -130,6 +145,7 @@ function sortDates() {
     showPage(1);
   }
   else if (currentSortDate === 'desc') {
+    sortDateBtn.textContent = 'Date ↓';
     visibleCards = [...visibleCards].sort((a, b) => b.dataset.date.localeCompare(a.dataset.date)); 
 
     appendGrid(visibleCards);
