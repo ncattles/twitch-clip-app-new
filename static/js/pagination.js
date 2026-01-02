@@ -1,6 +1,9 @@
 // Get total pages from the DOM
-const totalPagesElement = document.getElementById('total-pages');
-const totalPages = parseInt(totalPagesElement.textContent);
+let totalPagesElement = document.getElementById('total-pages');
+let totalPages = parseInt(totalPagesElement.textContent);
+
+// Get total clips from the DOM
+let totalClipsElement = document.getElementById('clip-count');
 
 // Get clip components from the DOM
 const grid = document.querySelector('.clips-grid');
@@ -18,11 +21,11 @@ const lastBtn = document.getElementById('last-page');
 const currentPageDisplay = document.getElementById('current-page');
 const sortViewsBtn = document.getElementById('sort-views');
 const sortDateBtn = document.getElementById('sort-date');
+const filterGamesBtn = document.getElementById('filter-game');
+const filterCreatorsBtn = document.getElementById('filter-creator');
 
 // Function to populate filters for channel
 function populateFilters() {
-  const filterGamesBtn = document.getElementById('filter-game');
-  const filterCreatorsBtn = document.getElementById('filter-creator');
   
   // Add unique games and creators to Sets
   let uniqueGames = new Set();
@@ -143,6 +146,41 @@ function sortDates() {
   }
 }
 
+// Function to apply filters to clips
+function applyFilters() {
+  const selectedGame = filterGamesBtn.value;
+  const selectedCreator = filterCreatorsBtn.value;
+
+  let clipsList = []; // new list for re-pagination
+
+  // Display matching filtered clips
+  allCards.forEach(function(card) {
+    let matchesGame = selectedGame === card.dataset.game || selectedGame === '';
+    let matchesCreator = selectedCreator === card.dataset.creator || selectedCreator === '';
+
+    if (matchesGame && matchesCreator) {
+      clipsList.push(card);
+    }
+    else {
+      card.dataset.page = 0; // Update to 0, these will never be shown
+    }
+  });
+
+  // Recalculate page number for each clip
+  clipsList.forEach(function(clip, index) {
+    clip.dataset.page = Math.floor(index / 20) + 1;
+  });
+
+  // Recalculate total number of pages, then display it
+  totalPagesElement.textContent = Math.ceil(clipsList.length / 20);  
+  totalPages = parseInt(totalPagesElement.textContent);
+
+  // Recalculate total number of clips
+  totalClipsElement.textContent = 'Showing ' + clipsList.length  + ' clips';  
+
+  showPage(1); // show first page
+}
+
 // Function to show clips for a specific page
 function showPage(pageNumber) {
 
@@ -200,12 +238,22 @@ lastBtn.addEventListener('click', function() {
   showPage(totalPages);
 });
 
+// Sort button click handlers
 sortViewsBtn.addEventListener('click', function() {
   sortViews();
 });
 
 sortDateBtn.addEventListener('click', function() {
   sortDates();
+});
+
+// Filter button click handlers
+filterGamesBtn.addEventListener('change', function() {
+  applyFilters();
+});
+
+filterCreatorsBtn.addEventListener('change', function() {
+  applyFilters();
 });
 
 
