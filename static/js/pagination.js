@@ -5,6 +5,7 @@ const totalPages = parseInt(totalPagesElement.textContent);
 // Get clips-grid and clip-cards from the DOM
 const grid = document.querySelector('.clips-grid');
 const allCards = document.querySelectorAll('.clip-card');
+const originalOrder = [...allCards];
 
 // Track current page
 let currentPage = 1;
@@ -15,6 +16,8 @@ const prevBtn = document.getElementById('prev-page');
 const nextBtn = document.getElementById('next-page');
 const lastBtn = document.getElementById('last-page');
 const currentPageDisplay = document.getElementById('current-page');
+const sortViewsBtn = document.getElementById('sort-views');
+const sortDateBtn = document.getElementById('sort-date');
 
 // Function to populate filters for channel
 function populateFilters() {
@@ -44,6 +47,60 @@ function populateFilters() {
   creatorsArray.forEach(creator => {
     filterCreatorsBtn.add(new Option(creator, creator))
   });
+}
+
+// Track current state of view/date toggle
+let currentSortView = 'none';
+let currentSortDate = 'none';
+
+// Function to sort clips by view count
+function sortViews() {
+  let dataSort = document.getElementById('sort-views');
+
+  switch(currentSortView) {
+    case 'none':
+      currentSortView = 'asc';
+      dataSort.dataset.sort = currentSortView;
+      break;
+    case 'asc':
+      currentSortView = 'desc';
+      dataSort.dataset.sort = currentSortView;
+      break;
+    case 'desc':
+      currentSortView = 'none';
+      dataSort.dataset.sort = currentSortView;
+      break;
+  }
+
+  let sortedOrder = [...allCards]; 
+  // none -> asc -> desc -> none
+  if (currentSortView === 'none') {
+    originalOrder.forEach(card => {
+      grid.appendChild(card);
+    });
+    return;
+  }
+  else if (currentSortView === 'asc') {
+    sortedOrder = [...allCards].sort((a, b) => parseInt(a.dataset.views) - parseInt(b.dataset.views)); // convert to int then subtract 
+
+    sortedOrder.forEach(card => {
+      grid.appendChild(card);
+    });
+    return;
+  }
+  else if (currentSortView === 'desc') {
+    sortedOrder = [...allCards].sort((a, b) => parseInt(b.dataset.views) - parseInt(a.dataset.views)); // convert to int then subtract
+
+    sortedOrder.forEach(card => {
+      grid.appendChild(card);
+    });
+    return;
+  }
+}
+
+// Function to sort clips by Date
+function sortDate() {
+
 }
 
 // Function to show clips for a specific page
@@ -102,6 +159,15 @@ nextBtn.addEventListener('click', function() {
 lastBtn.addEventListener('click', function() {
   showPage(totalPages);
 });
+
+sortViewsBtn.addEventListener('click', function() {
+  sortViews();
+});
+
+sortDateBtn.addEventListener('click', function() {
+  sortDate();
+});
+
 
 // Show page 1 on initial load
 showPage(1);
