@@ -2,7 +2,7 @@
 const totalPagesElement = document.getElementById('total-pages');
 const totalPages = parseInt(totalPagesElement.textContent);
 
-// Get clips-grid and clip-cards from the DOM
+// Get clip components from the DOM
 const grid = document.querySelector('.clips-grid');
 const allCards = document.querySelectorAll('.clip-card');
 const originalOrder = [...allCards];
@@ -98,9 +98,49 @@ function sortViews() {
   }
 }
 
-// Function to sort clips by Date
-function sortDate() {
+// Function to sort clips by date
+function sortDates() {
+  let dataSort = document.getElementById('sort-date');
 
+  switch(currentSortDate) {
+    case 'none':
+      currentSortDate = 'asc';
+      dataSort.dataset.sort = currentSortDate;
+      break;
+    case 'asc':
+      currentSortDate = 'desc';
+      dataSort.dataset.sort = currentSortDate;
+      break;
+    case 'desc':
+      currentSortDate = 'none';
+      dataSort.dataset.sort = currentSortDate;
+      break;
+  }
+
+  let sortedOrder = [...allCards]; 
+  // none -> asc -> desc -> none
+  if (currentSortDate === 'none') {
+    originalOrder.forEach(card => {
+      grid.appendChild(card);
+    });
+    return;
+  }
+  else if (currentSortDate === 'asc') {
+    sortedOrder = [...allCards].sort((a, b) => a.dataset.date.localeCompare(b.dataset.date)); 
+
+    sortedOrder.forEach(card => {
+      grid.appendChild(card);
+    });
+    return;
+  }
+  else if (currentSortDate === 'desc') {
+    sortedOrder = [...allCards].sort((a, b) => b.dataset.date.localeCompare(a.dataset.date)); 
+
+    sortedOrder.forEach(card => {
+      grid.appendChild(card);
+    });
+    return;
+  }
 }
 
 // Function to show clips for a specific page
@@ -165,7 +205,7 @@ sortViewsBtn.addEventListener('click', function() {
 });
 
 sortDateBtn.addEventListener('click', function() {
-  sortDate();
+  sortDates();
 });
 
 
