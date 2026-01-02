@@ -75,34 +75,23 @@ function sortViews() {
   }
 
   // Reset the date sort when views sort is activated
-    currentSortDate = 'none';
-    sortDateBtn.textContent = 'Date';
-    sortDateBtn.dataset.sort = 'none';
+  currentSortDate = 'none';
+  sortDateBtn.textContent = 'Date';
+  sortDateBtn.dataset.sort = 'none';
 
   // none -> asc -> desc -> none
   if (currentSortView === 'none') {
     sortViewsBtn.textContent = 'Views';
-    appendGrid(visibleCards);
-    recalculatePageNumber(visibleCards);
-    showPage(1);
-    return;
-  }
-  else if (currentSortView === 'asc') {
+  } else if (currentSortView === 'asc') {
     sortViewsBtn.textContent = 'Views ↑';
-    visibleCards = [...visibleCards].sort((a, b) => parseInt(a.dataset.views) - parseInt(b.dataset.views)); // convert to int then subtract 
-
-    appendGrid(visibleCards);
-    recalculatePageNumber(visibleCards);
-    showPage(1);
-  }
-  else if (currentSortView === 'desc') {
+  } else if (currentSortView === 'desc') {
     sortViewsBtn.textContent = 'Views ↓';
-    visibleCards = [...visibleCards].sort((a, b) => parseInt(b.dataset.views) - parseInt(a.dataset.views)); // convert to int then subtract
-
-    appendGrid(visibleCards);
-    recalculatePageNumber(visibleCards);
-    showPage(1);
   }
+
+  applySorting(); // Call applySorting helper function
+  appendGrid(visibleCards);
+  recalculatePageNumber(visibleCards);
+  showPage(1);
 }
 
 // Function to sort clips by date
@@ -132,26 +121,16 @@ function sortDates() {
   // none -> asc -> desc -> none
   if (currentSortDate === 'none') {
     sortDateBtn.textContent = 'Date';
-    appendGrid(visibleCards);
-    recalculatePageNumber(visibleCards);
-    showPage(1);
-  }
-  else if (currentSortDate === 'asc') {
+  } else if (currentSortDate === 'asc') {
     sortDateBtn.textContent = 'Date ↑';
-    visibleCards = [...visibleCards].sort((a, b) => a.dataset.date.localeCompare(b.dataset.date)); 
-
-    appendGrid(visibleCards);
-    recalculatePageNumber(visibleCards);
-    showPage(1);
-  }
-  else if (currentSortDate === 'desc') {
+  } else if (currentSortDate === 'desc') {
     sortDateBtn.textContent = 'Date ↓';
-    visibleCards = [...visibleCards].sort((a, b) => b.dataset.date.localeCompare(a.dataset.date)); 
-
-    appendGrid(visibleCards);
-    recalculatePageNumber(visibleCards);
-    showPage(1);
   }
+
+  applySorting(); // call applySorting helper function
+  appendGrid(visibleCards);
+  recalculatePageNumber(visibleCards);
+  showPage(1);
 }
 
 // Function to apply filters to clips
@@ -177,17 +156,35 @@ function applyFilters() {
   // Reassign visibleCards to be equal to clipsList
   visibleCards = clipsList;
 
-  // Recalculate page numbers
-  recalculatePageNumber(clipsList);
+  // Re-apply any active sorting 
+  applySorting();
+
+  // Then recalculate pages and append
+  appendGrid(visibleCards);
+  recalculatePageNumber(visibleCards);
 
   // Recalculate total number of pages, then display it
-  totalPagesElement.textContent = Math.ceil(clipsList.length / 20);  
+  totalPagesElement.textContent = Math.ceil(visibleCards.length / 20);  
   totalPages = parseInt(totalPagesElement.textContent);
 
   // Recalculate total number of clips
-  totalClipsElement.textContent = 'Showing ' + clipsList.length  + ' clips';  
+  totalClipsElement.textContent = 'Showing ' + visibleCards.length  + ' clips';  
 
   showPage(1); // show first page
+}
+
+// Helper function to apply sorting 
+function applySorting() {
+  if (currentSortView === 'asc') {
+    visibleCards = [...visibleCards].sort((a, b) => parseInt(a.dataset.views) - parseInt(b.dataset.views));
+  } else if (currentSortView === 'desc') {
+    visibleCards = [...visibleCards].sort((a, b) => parseInt(b.dataset.views) - parseInt(a.dataset.views));
+  } else if (currentSortDate === 'asc') {
+    visibleCards = [...visibleCards].sort((a, b) => a.dataset.date.localeCompare(b.dataset.date));
+  } else if (currentSortDate === 'desc') {
+    visibleCards = [...visibleCards].sort((a, b) => b.dataset.date.localeCompare(a.dataset.date));
+  }
+  // If both sorts are 'none', visibleCards stays unchanged
 }
 
 // Helper function to recalculate page number for each clip in list
