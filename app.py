@@ -117,6 +117,16 @@ def enrich_clips_with_game_names(clips_list):
     game_id = clip['game_id']
     clip['game_name'] = game_dict.get(game_id, 'Unknown Game')
 
+
+def enrich_clips_with_time(clips_list):
+  """Add formatted_time field to each clip. Modifies clips_list in place."""
+  for clip in clips_list:
+    clip_time = clip['duration'] # orginal time
+    
+    clip_min = int(clip_time // 60 )
+    clip_sec = int(clip_time % 60)
+    clip['formatted_time'] = f"{clip_min}:{clip_sec:02d}"
+     
 ''' Server-side pagination
 def paginate_clips(clips_list, page_number):
   """Return clips that correspond to page number."""  
@@ -175,7 +185,8 @@ def show_channel_clips(channel_name):
   # Enrich clips with additional data
   enrich_clips_with_dates(clips_list)
   enrich_clips_with_game_names(clips_list)
-
+  enrich_clips_with_time(clips_list)
+  
   # Calculate number of pages for client-side rendering
   num_of_pages = calculate_num_of_pages(clips_list)
 
