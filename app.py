@@ -1,6 +1,6 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, jsonify
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 import requests
 import math
@@ -195,3 +195,11 @@ def show_channel_clips(channel_name):
     clips_list = paginate_clips(clips_list, page_number)
   '''
   return render_template('channels.html', clips=clips_list, num_of_pages=num_of_pages)
+
+@app.route('/health')
+def health():
+  """Health check endpoint for deployment verification."""
+  return jsonify({
+    'status' : 'healthy',
+    'timestamp': datetime.now(timezone.utc).isoformat()
+  }), 200
