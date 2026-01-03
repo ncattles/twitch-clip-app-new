@@ -8,6 +8,7 @@ let totalClipsElement = document.getElementById('clip-count');
 // Get clip components from the DOM
 const grid = document.querySelector('.clips-grid');
 const allCardsElement = document.querySelectorAll('.clip-card');
+let allCards = [...allCardsElement];
 let visibleCards = [...allCardsElement];
 
 // Track current page
@@ -70,7 +71,6 @@ function sortViews() {
   // Reset the date sort when views sort is activated
   sortDateBtn.dataset.sort = 'none';
   sortDateBtn.textContent = 'Date';
-  sortDateBtn.dataset.sort = 'none';
 
   // none -> asc -> desc -> none
   if (sortViewsBtn.dataset.sort === 'none') {
@@ -105,7 +105,6 @@ function sortDates() {
   // Reset the views sort when date sort is activated
   sortViewsBtn.dataset.sort = 'none';
   sortViewsBtn.textContent = 'Views';
-  sortViewsBtn.dataset.sort = 'none';
  
   // none -> asc -> desc -> none
   if (sortDateBtn.dataset.sort === 'none') {
@@ -164,7 +163,29 @@ function applyFilters() {
 
 // Function to clear filters
 function clearFilters() {
+  sortViewsBtn.dataset.sort = 'none';
+  sortViewsBtn.textContent = 'Views';
+  
+  sortDateBtn.dataset.sort = 'none';
+  sortDateBtn.textContent = 'Date';
+  
+  filterGamesBtn.value = '';
+  filterCreatorsBtn.value = '';
 
+  visibleCards = allCards; // reset visibleCards to allCards
+
+  // Recalculate pages and append
+  appendGrid(visibleCards);
+  recalculatePageNumber(visibleCards);
+
+  // Recalculate total number of pages, then display it
+  totalPagesElement.textContent = Math.ceil(visibleCards.length / 20);  
+  totalPages = parseInt(totalPagesElement.textContent);
+
+  // Recalculate total number of clips
+  totalClipsElement.textContent = 'Showing ' + visibleCards.length  + ' clips';  
+
+  showPage(1); // show first page
 }
 
 // Helper function to apply sorting 
