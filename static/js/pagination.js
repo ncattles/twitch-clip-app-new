@@ -23,6 +23,7 @@ const sortViewsBtn = document.getElementById('sort-views');
 const sortDateBtn = document.getElementById('sort-date');
 const filterGamesBtn = document.getElementById('filter-game');
 const filterCreatorsBtn = document.getElementById('filter-creator');
+const clearFiltersBtn = document.getElementById('clear-filters');
 
 // Function to populate filters for channel
 function populateFilters() {
@@ -51,40 +52,32 @@ function populateFilters() {
   });
 }
 
-// Track current state of view/date toggle
-let currentSortView = 'none';
-let currentSortDate = 'none';
-
 // Function to sort clips by view count
 function sortViews() {
-  let dataSort = document.getElementById('sort-views');
-
-  switch(currentSortView) {
+  
+  switch(sortViewsBtn.dataset.sort) {
     case 'none':
-      currentSortView = 'asc';
-      dataSort.dataset.sort = currentSortView;
+      sortViewsBtn.dataset.sort = 'asc';
       break;
     case 'asc':
-      currentSortView = 'desc';
-      dataSort.dataset.sort = currentSortView;
+      sortViewsBtn.dataset.sort = 'desc';
       break;
     case 'desc':
-      currentSortView = 'none';
-      dataSort.dataset.sort = currentSortView;
+      sortViewsBtn.dataset.sort = 'none';
       break;
   }
 
   // Reset the date sort when views sort is activated
-  currentSortDate = 'none';
+  sortDateBtn.dataset.sort = 'none';
   sortDateBtn.textContent = 'Date';
   sortDateBtn.dataset.sort = 'none';
 
   // none -> asc -> desc -> none
-  if (currentSortView === 'none') {
+  if (sortViewsBtn.dataset.sort === 'none') {
     sortViewsBtn.textContent = 'Views';
-  } else if (currentSortView === 'asc') {
+  } else if (sortViewsBtn.dataset.sort === 'asc') {
     sortViewsBtn.textContent = 'Views ↑';
-  } else if (currentSortView === 'desc') {
+  } else if (sortViewsBtn.dataset.sort === 'desc') {
     sortViewsBtn.textContent = 'Views ↓';
   }
 
@@ -96,34 +89,30 @@ function sortViews() {
 
 // Function to sort clips by date
 function sortDates() {
-  let dataSort = document.getElementById('sort-date');
 
-  switch(currentSortDate) {
+  switch(sortDateBtn.dataset.sort) {
     case 'none':
-      currentSortDate = 'asc';
-      dataSort.dataset.sort = currentSortDate;
+      sortDateBtn.dataset.sort = 'asc';
       break;
     case 'asc':
-      currentSortDate = 'desc';
-      dataSort.dataset.sort = currentSortDate;
+      sortDateBtn.dataset.sort = 'desc';
       break;
     case 'desc':
-      currentSortDate = 'none';
-      dataSort.dataset.sort = currentSortDate;
+      sortDateBtn.dataset.sort = 'none';
       break;
   }
 
   // Reset the views sort when date sort is activated
-  currentSortView = 'none';
+  sortViewsBtn.dataset.sort = 'none';
   sortViewsBtn.textContent = 'Views';
   sortViewsBtn.dataset.sort = 'none';
  
   // none -> asc -> desc -> none
-  if (currentSortDate === 'none') {
+  if (sortDateBtn.dataset.sort === 'none') {
     sortDateBtn.textContent = 'Date';
-  } else if (currentSortDate === 'asc') {
+  } else if (sortDateBtn.dataset.sort === 'asc') {
     sortDateBtn.textContent = 'Date ↑';
-  } else if (currentSortDate === 'desc') {
+  } else if (sortDateBtn.dataset.sort === 'desc') {
     sortDateBtn.textContent = 'Date ↓';
   }
 
@@ -173,15 +162,20 @@ function applyFilters() {
   showPage(1); // show first page
 }
 
+// Function to clear filters
+function clearFilters() {
+
+}
+
 // Helper function to apply sorting 
 function applySorting() {
-  if (currentSortView === 'asc') {
+  if (sortViewsBtn.dataset.sort === 'asc') {
     visibleCards = [...visibleCards].sort((a, b) => parseInt(a.dataset.views) - parseInt(b.dataset.views));
-  } else if (currentSortView === 'desc') {
+  } else if (sortViewsBtn.dataset.sort === 'desc') {
     visibleCards = [...visibleCards].sort((a, b) => parseInt(b.dataset.views) - parseInt(a.dataset.views));
-  } else if (currentSortDate === 'asc') {
+  } else if (sortDateBtn.dataset.sort === 'asc') {
     visibleCards = [...visibleCards].sort((a, b) => a.dataset.date.localeCompare(b.dataset.date));
-  } else if (currentSortDate === 'desc') {
+  } else if (sortDateBtn.dataset.sort === 'desc') {
     visibleCards = [...visibleCards].sort((a, b) => b.dataset.date.localeCompare(a.dataset.date));
   }
   // If both sorts are 'none', visibleCards stays unchanged
@@ -274,6 +268,11 @@ filterGamesBtn.addEventListener('change', function() {
 
 filterCreatorsBtn.addEventListener('change', function() {
   applyFilters();
+});
+
+// Clear filters button click handler
+clearFiltersBtn.addEventListener('click', function() {
+  clearFilters();
 });
 
 
