@@ -1,0 +1,16 @@
+__pycache__
+.claude
+.dockerignore
+.DS_Store
+.env
+.git
+.gitignore
+.venv
+CLAUDE.md
+docker-compose.yml
+Dockerfile
+
+# compiled python files that might be in subdirectories
+*.pyc
+*.pyo
+*.pyd
