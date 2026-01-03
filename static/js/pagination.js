@@ -144,21 +144,8 @@ function applyFilters() {
   // Reassign visibleCards to be equal to clipsList
   visibleCards = clipsList;
 
-  // Re-apply any active sorting 
-  applySorting();
-
-  // Then recalculate pages and append
-  appendGrid(visibleCards);
-  recalculatePageNumber(visibleCards);
-
-  // Recalculate total number of pages, then display it
-  totalPagesElement.textContent = Math.ceil(visibleCards.length / 20);  
-  totalPages = parseInt(totalPagesElement.textContent);
-
-  // Recalculate total number of clips
-  totalClipsElement.textContent = 'Showing ' + visibleCards.length  + ' clips';  
-
-  showPage(1); // show first page
+  applySorting(); // Re-apply any active sorting 
+  resetView(); // reset view
 }
 
 // Function to clear filters
@@ -174,6 +161,11 @@ function clearFilters() {
 
   visibleCards = allCards; // reset visibleCards to allCards
 
+  resetView(); // reset view
+}
+
+// Helper function to reset view
+function resetView() {
   // Recalculate pages and append
   appendGrid(visibleCards);
   recalculatePageNumber(visibleCards);
