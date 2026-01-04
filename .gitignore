@@ -21,7 +21,7 @@ DEPLOYMENT.md
 *.tfstate
 *.tfstate.*
 *.tfvars
-!terraform.tfvars.example
+.terraform.lock.hcl
 
 # Docker
 docker-compose.override.yml
