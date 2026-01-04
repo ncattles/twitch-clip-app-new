@@ -1,5 +1,26 @@
+# Python
 .venv
-CLAUDE.md
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables
 .env
+.env.production
+
+# Documentation
+CLAUDE.md
+
+# Mac system files
 .DS_Store
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+
+# Docker
+docker-compose.override.yml
