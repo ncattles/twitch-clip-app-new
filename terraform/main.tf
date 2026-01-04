@@ -26,7 +26,7 @@ resource "aws_security_group" "mesiafy_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] 
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -40,24 +40,24 @@ resource "aws_security_group" "mesiafy_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${data.aws_ssm_parameter.home_ip.value}/32"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 # AWS instance
 resource "aws_instance" "mesiafy_instance" {
-  ami = "ami-068c0051b15cdb816"
-  instance_type = "t3.micro"
-  subnet_id = "subnet-0beff5d225fe14143"
+  ami                    = "ami-068c0051b15cdb816"
+  instance_type          = "t3.micro"
+  subnet_id              = "subnet-0beff5d225fe14143"
   vpc_security_group_ids = [aws_security_group.mesiafy_sg.id]
-  key_name = "my-key-pair"
+  key_name               = "my-key-pair"
 
   user_data = <<-EOF
     #!/bin/bash
@@ -79,29 +79,28 @@ resource "aws_instance" "mesiafy_instance" {
 
     EOF
 
-  user_data_replace_on_change = true
 }
 
 # Elastic IP for instance
 resource "aws_eip" "mesiafy_ip" {
   instance = aws_instance.mesiafy_instance.id
-  domain = "vpc"
+  domain   = "vpc"
 }
 
 # Route53 records
 resource "aws_route53_record" "mesiafy_record_www" {
   zone_id = "Z0718908VPN69AUG8TB2"
-  name = "www.mesiafy.com"
-  ttl = 300
-  type = "A"
+  name    = "www.mesiafy.com"
+  ttl     = 300
+  type    = "A"
   records = [aws_eip.mesiafy_ip.public_ip]
 }
 
 resource "aws_route53_record" "mesiafy_record" {
   zone_id = "Z0718908VPN69AUG8TB2"
-  name = "mesiafy.com"
-  ttl = 300
-  type = "A"
+  name    = "mesiafy.com"
+  ttl     = 300
+  type    = "A"
   records = [aws_eip.mesiafy_ip.public_ip]
 }
 
