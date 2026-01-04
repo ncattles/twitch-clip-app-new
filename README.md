@@ -78,7 +78,7 @@ Mesiafy was created as a learning project to explore web development, API integr
 
 ## Feedback
 
-Found a bug or have a feature request? [Open an issue](https://github.com/yourusername/twitch-clip-app-new/issues) on GitHub.
+Found a bug or have a feature request? [Open an issue](https://github.com/ncattles/twitch-clip-app-new/issues) on GitHub.
 
 ---
 
