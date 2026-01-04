@@ -11,6 +11,7 @@ __pycache__/
 
 # Documentation
 CLAUDE.md
+DEPLOYMENT.md
 
 # Mac system files
 .DS_Store
