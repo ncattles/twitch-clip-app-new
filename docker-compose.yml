@@ -1,0 +1,40 @@
+services:
+  # Service 1: flask app
+  flask:
+    image: ncattles/twitch-clips-app:latest
+    container_name: flask-app
+    restart: unless-stopped # Auto-restart if it crashes
+    env_file:
+      - .env # Load environment variables from this file
+    volumes:
+      - flask-socket:/tmp # Shared volume for Unix socket
+    networks:
+      - app-network # Connect to custom network
+
+  # Service 2: nginx
+  nginx:
+    image: nginx:alpine # Lightweight nginx
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+        - "80:80"    # HTTP
+        - "443:443"  # HTTPS
+    volumes:
+        - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Mount nginx config (read-only)
+        - ./static:/usr/share/nginx/html/static:ro  # Mount static files (read-only)
+        - /etc/letsencrypt:/etc/letsencrypt:ro  # SSL certificates (on EC2)
+        - flask-socket:/tmp  # Shared volume for Unix socket
+    depends_on:
+      - flask  # Start flask container first
+    networks:
+      - app-network  # Same network as flask
+  
+# Define custom network
+networks:
+  app-network:
+    driver: bridge  # Standard Docker network type
+
+# Define named volumes
+volumes:
+  flask-socket:  # Shared /tmp directory for Unix socket
+
