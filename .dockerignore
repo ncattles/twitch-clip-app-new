@@ -9,6 +9,8 @@ __pycache__
 CLAUDE.md
 docker-compose.yml
 Dockerfile
+README.md
+screenshots/
 
 # compiled python files that might be in subdirectories
 *.pyc
