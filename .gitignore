@@ -23,5 +23,8 @@ DEPLOYMENT.md
 *.tfvars
 .terraform.lock.hcl
 
+# Troubleshooting
+ec2-troubleshooting.txt
+
 # Docker
 docker-compose.override.yml
