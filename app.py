@@ -16,8 +16,7 @@ access_token_url = 'https://id.twitch.tv/oauth2/token'
 access_token_obj = {'client_id': app.config['TWITCH_CLIENT_ID'], 'client_secret': app.config['TWITCH_CLIENT_SECRET'], 'grant_type': 'client_credentials'}
 
 access_token_res = requests.post(access_token_url, data = access_token_obj)
-access_token = access_token_res.json()
-access_token = access_token['access_token']
+access_token = access_token_res.json()['access_token']
 
 # re-usable header for API calls
 headers = {'Authorization': f'Bearer {access_token}', 'Client-Id': app.config['TWITCH_CLIENT_ID']}
@@ -26,14 +25,26 @@ headers = {'Authorization': f'Bearer {access_token}', 'Client-Id': app.config['T
 # Helper Functions
 # ============================================================================
 
+def refresh_token():
+  res = requests.post(access_token_url, data=access_token_obj)
+  headers['Authorization'] = f'Bearer {res.json()["access_token"]}'
+
+def twitch_get(url, params=None):
+  """GET with automatic token refresh on 401."""
+  res = requests.get(url, params=params, headers=headers)
+  if res.status_code == 401:
+    refresh_token()
+    res = requests.get(url, params=params, headers=headers)
+  res.raise_for_status()
+  return res
+
 def get_broadcaster_id(channel_name):
   """Fetch broadcaster_id from channel name. Returns None on error."""
   params = {'login': channel_name}
 
   broadcaster_id_url = 'https://api.twitch.tv/helix/users'
   try:
-    res = requests.get(broadcaster_id_url, params=params, headers=headers)
-    res.raise_for_status()
+    res = twitch_get(broadcaster_id_url, params=params)
   except requests.RequestException:
     return None
 
@@ -51,8 +62,7 @@ def fetch_all_clips(broadcaster_id):
 
   clips_url = 'https://api.twitch.tv/helix/clips'
   try:
-    res = requests.get(clips_url, params=params, headers=headers)
-    res.raise_for_status()
+    res = twitch_get(clips_url, params=params)
   except requests.RequestException:
     return []
 
@@ -66,8 +76,7 @@ def fetch_all_clips(broadcaster_id):
     params = {'broadcaster_id': broadcaster_id, 'after': after}
 
     try:
-      res = requests.get(clips_url, params=params, headers=headers)
-      res.raise_for_status()
+      res = twitch_get(clips_url, params=params)
     except requests.RequestException:
       break  # Return what we have so far
 
@@ -104,8 +113,7 @@ def enrich_clips_with_game_names(clips_list):
   params = [('id', game) for game in unique_games] # list comprehension
 
   try:
-    res = requests.get(games_url, params=params, headers=headers)
-    res.raise_for_status()
+    res = twitch_get(games_url, params=params)
     data = res.json()
     game_dict = {game['id']: game['name'] for game in data['data']}
   except requests.RequestException:
